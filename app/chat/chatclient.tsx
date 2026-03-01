@@ -1248,3 +1248,4 @@ export default function ChatClient() {
     </div>
   );
 }
+// router.replace("/chat");
