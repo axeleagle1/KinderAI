@@ -3,8 +3,7 @@ import ChatClient from "./chatclient";
 
 export const dynamic = "force-dynamic";
 
-export default function ChatPage() {
-  // ✅ Fix for your build error: useSearchParams must be behind Suspense (and avoid prerender)
+export default function Page() {
   return (
     <Suspense fallback={null}>
       <ChatClient />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 /** ---------- Tiny inline icons (no dependencies) ---------- */
@@ -28,14 +28,14 @@ function Icon({
   );
 }
 
-const IPlus = (p: { size?: number }) => (
-  <Icon size={p.size} title="Plus">
+const IPlus = ({ size }: { size?: number }) => (
+  <Icon size={size} title="Plus">
     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </Icon>
 );
 
-const ISearch = (p: { size?: number }) => (
-  <Icon size={p.size} title="Search">
+const ISearch = ({ size }: { size?: number }) => (
+  <Icon size={size} title="Search">
     <path
       d="M10.5 18a7.5 7.5 0 1 1 5.2-12.9A7.5 7.5 0 0 1 10.5 18Z"
       stroke="currentColor"
@@ -45,20 +45,20 @@ const ISearch = (p: { size?: number }) => (
   </Icon>
 );
 
-const IMenu = (p: { size?: number }) => (
-  <Icon size={p.size} title="Menu">
+const IMenu = ({ size }: { size?: number }) => (
+  <Icon size={size} title="Menu">
     <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </Icon>
 );
 
-const IX = (p: { size?: number }) => (
-  <Icon size={p.size} title="Close">
+const IX = ({ size }: { size?: number }) => (
+  <Icon size={size} title="Close">
     <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </Icon>
 );
 
-const ISend = (p: { size?: number }) => (
-  <Icon size={p.size} title="Send">
+const ISend = ({ size }: { size?: number }) => (
+  <Icon size={size} title="Send">
     <path
       d="M4 12l16-8-6.5 16-2.8-6.2L4 12Z"
       stroke="currentColor"
@@ -197,7 +197,12 @@ export default function ChatClient() {
       prev.map((c) =>
         c.id !== chatId
           ? c
-          : { ...c, messages: c.messages.map((m) => (m.id === messageId ? { ...m, quickReplies: [] } : m)) }
+          : {
+              ...c,
+              messages: c.messages.map((m) =>
+                m.id === messageId ? { ...m, quickReplies: [] } : m
+              ),
+            }
       )
     );
   };
@@ -232,6 +237,8 @@ export default function ChatClient() {
         body: JSON.stringify({ message: messageToSend, tier }),
       });
 
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       const data = await res.json();
 
       const aiMessage: Message = {
@@ -243,7 +250,11 @@ export default function ChatClient() {
       };
 
       setChats((prev) =>
-        prev.map((chat) => (chat.id === activeChat.id ? { ...chat, messages: [...chat.messages, aiMessage] } : chat))
+        prev.map((chat) =>
+          chat.id === activeChat.id
+            ? { ...chat, messages: [...chat.messages, aiMessage] }
+            : chat
+        )
       );
     } catch {
       const aiMessage: Message = {
@@ -255,12 +266,18 @@ export default function ChatClient() {
       };
 
       setChats((prev) =>
-        prev.map((chat) => (chat.id === activeChat.id ? { ...chat, messages: [...chat.messages, aiMessage] } : chat))
+        prev.map((chat) =>
+          chat.id === activeChat.id
+            ? { ...chat, messages: [...chat.messages, aiMessage] }
+            : chat
+        )
       );
     } finally {
       setLoading(false);
     }
   };
+
+  const sendText = () => sendMessage(input);
 
   /** ---------- Auto-send ?prompt= ---------- */
   useEffect(() => {
@@ -272,8 +289,7 @@ export default function ChatClient() {
     didAutoSend.current = true;
     sendMessage(prompt);
 
-    // optional: clean URL (keeps /chat)
-    // If you ever see weird navigation loops, comment this line out.
+    // Clean URL after sending
     router.replace("/chat");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChat, searchParams]);
@@ -283,11 +299,12 @@ export default function ChatClient() {
     const file = e.target.files?.[0];
     if (!file || !activeChat) return;
 
-    // You can wire this into your API later. For now just acknowledge.
     const msg: Message = { id: newId(), role: "user", content: `📎 ${file.name}` };
 
     setChats((prev) =>
-      prev.map((chat) => (chat.id === activeChat.id ? { ...chat, messages: [...chat.messages, msg] } : chat))
+      prev.map((chat) =>
+        chat.id === activeChat.id ? { ...chat, messages: [...chat.messages, msg] } : chat
+      )
     );
 
     e.target.value = "";
@@ -304,7 +321,10 @@ export default function ChatClient() {
     );
   }, [chats, searchQuery]);
 
-  const visibleChats = useMemo(() => filteredChats.filter((c) => c.messages.length > 0), [filteredChats]);
+  const visibleChats = useMemo(
+    () => filteredChats.filter((c) => c.messages.length > 0),
+    [filteredChats]
+  );
 
   /** ---------- UI ---------- */
   return (
@@ -374,7 +394,9 @@ export default function ChatClient() {
                 <button
                   onClick={() => setTier("lite")}
                   className={`flex-1 rounded-xl border px-3 py-2 text-xs transition ${
-                    tier === "lite" ? "border-blue-400/30 bg-blue-500/10 text-white/90" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                    tier === "lite"
+                      ? "border-blue-400/30 bg-blue-500/10 text-white/90"
+                      : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                   }`}
                 >
                   {MODEL_LABEL.lite}
@@ -382,7 +404,9 @@ export default function ChatClient() {
                 <button
                   onClick={() => setTier("pro")}
                   className={`flex-1 rounded-xl border px-3 py-2 text-xs transition ${
-                    tier === "pro" ? "border-blue-400/30 bg-blue-500/10 text-white/90" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                    tier === "pro"
+                      ? "border-blue-400/30 bg-blue-500/10 text-white/90"
+                      : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                   }`}
                   title="UI only (locked)"
                 >
@@ -393,7 +417,9 @@ export default function ChatClient() {
           )}
 
           {!sidebarCollapsed && (
-            <div className="mt-8 mb-3 text-xs uppercase tracking-wider text-white/40">Your chats</div>
+            <div className="mt-8 mb-3 text-xs uppercase tracking-wider text-white/40">
+              Your chats
+            </div>
           )}
 
           {!sidebarCollapsed && (
@@ -421,7 +447,9 @@ export default function ChatClient() {
           <button
             onClick={() => fileInputRef.current?.click()}
             className={`mt-5 rounded-2xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition ${
-              sidebarCollapsed ? "h-12 w-12 mx-auto flex items-center justify-center" : "px-4 py-2 text-sm"
+              sidebarCollapsed
+                ? "h-12 w-12 mx-auto flex items-center justify-center"
+                : "px-4 py-2 text-sm"
             }`}
             title="Upload (stub)"
           >
@@ -432,7 +460,10 @@ export default function ChatClient() {
         {/* Mobile Sidebar */}
         {mobileSidebarOpen && (
           <div className="fixed inset-0 z-[200] md:hidden">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileSidebarOpen(false)} />
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setMobileSidebarOpen(false)}
+            />
             <div className="absolute left-0 top-0 h-full w-[85%] max-w-[320px] border-r border-white/10 bg-[#0b1220]/95 backdrop-blur-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -478,7 +509,9 @@ export default function ChatClient() {
                   <button
                     onClick={() => setTier("lite")}
                     className={`flex-1 rounded-xl border px-3 py-2 text-xs transition ${
-                      tier === "lite" ? "border-blue-400/30 bg-blue-500/10 text-white/90" : "border-white/10 bg-white/5 text-white/70"
+                      tier === "lite"
+                        ? "border-blue-400/30 bg-blue-500/10 text-white/90"
+                        : "border-white/10 bg-white/5 text-white/70"
                     }`}
                   >
                     Lite
@@ -486,7 +519,9 @@ export default function ChatClient() {
                   <button
                     onClick={() => setTier("pro")}
                     className={`flex-1 rounded-xl border px-3 py-2 text-xs transition ${
-                      tier === "pro" ? "border-blue-400/30 bg-blue-500/10 text-white/90" : "border-white/10 bg-white/5 text-white/70"
+                      tier === "pro"
+                        ? "border-blue-400/30 bg-blue-500/10 text-white/90"
+                        : "border-white/10 bg-white/5 text-white/70"
                     }`}
                     title="UI only (locked)"
                   >
@@ -495,7 +530,9 @@ export default function ChatClient() {
                 </div>
               </div>
 
-              <div className="mt-8 mb-3 text-xs uppercase tracking-wider text-white/40">Your chats</div>
+              <div className="mt-8 mb-3 text-xs uppercase tracking-wider text-white/40">
+                Your chats
+              </div>
               <div className="flex-1 overflow-y-auto space-y-2 pr-1">
                 {visibleChats.map((chat) => {
                   const isActive = chat.id === activeChatId;
@@ -559,17 +596,20 @@ export default function ChatClient() {
                       </p>
 
                       <div className="mt-5 flex flex-wrap justify-center gap-2">
-                        {["[MODE:GROUND] Calm down", "Get clarity", "Make a plan", "[MODE:PAUSE] Rewrite a message"].map(
-                          (t) => (
-                            <button
-                              key={t}
-                              onClick={() => setInput(t)}
-                              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 transition"
-                            >
-                              {cleanQuickReplyLabel(t)}
-                            </button>
-                          )
-                        )}
+                        {[
+                          "[MODE:GROUND] Calm down",
+                          "Get clarity",
+                          "Make a plan",
+                          "[MODE:PAUSE] Rewrite a message",
+                        ].map((t) => (
+                          <button
+                            key={t}
+                            onClick={() => setInput(t)}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 transition"
+                          >
+                            {cleanQuickReplyLabel(t)}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -632,17 +672,19 @@ export default function ChatClient() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
-                        sendMessage(input);
+                        sendText();
                       }
                     }}
                     placeholder="Write a message…"
                   />
 
                   <button
-                    onClick={() => sendMessage(input)}
+                    onClick={sendText}
                     disabled={loading || !input.trim()}
                     className={`h-11 w-11 rounded-full flex items-center justify-center transition-all duration-200 ${
-                      input.trim() ? "bg-white/10 text-white hover:bg-white/15" : "bg-white/5 text-white/30"
+                      input.trim()
+                        ? "bg-white/10 text-white hover:bg-white/15"
+                        : "bg-white/5 text-white/30"
                     }`}
                     aria-label="Send"
                     title="Send"
@@ -652,7 +694,12 @@ export default function ChatClient() {
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-2 px-1 pb-1">
-                  {["[MODE:GROUND] Calm down", "Get clarity", "Make a plan", "[MODE:PAUSE] Rewrite kindly"].map((t) => (
+                  {[
+                    "[MODE:GROUND] Calm down",
+                    "Get clarity",
+                    "Make a plan",
+                    "[MODE:PAUSE] Rewrite kindly",
+                  ].map((t) => (
                     <button
                       key={t}
                       onClick={() => setInput((prev) => (prev ? prev + " " + t : t))}
@@ -667,7 +714,13 @@ export default function ChatClient() {
           )}
         </main>
 
-        <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleImageUpload} />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleImageUpload}
+        />
       </div>
     </div>
   );
