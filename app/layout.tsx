@@ -13,13 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HumanKindAI",
-  description:
-    "HumanKindAI is a calm, ethical AI companion built to support mental clarity, emotional growth, and practical self-improvement.",
+  title: "KinderAI",
+  description: "KinderAI helps you move from emotion → clarity → action.",
   icons: {
-    icon: "/favicon.ico",        // browser tab
+    icon: "/favicon.ico",
     shortcut: "/favicon.ico",
-    apple: "/icon.png",          // optional (512x512)
   },
 };
 
@@ -29,9 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#020617] text-white antialiased`}
       >
         {children}
       </body>
