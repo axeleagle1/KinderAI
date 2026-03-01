@@ -336,7 +336,7 @@ export default function ChatClient() {
       <div className="flex min-h-screen">
         {/* Desktop Sidebar */}
         <aside
-          className={`hidden md:flex border-r border-white/5 bg-white/[0.03] backdrop-blur-2xl flex-col transition-all duration-200 ${
+          className={`hidden md:flex border-r border-white/5 bg-white/3 backdrop-blur-2xl flex-col transition-all duration-200 ${
             sidebarCollapsed ? "w-20 p-4" : "w-72 p-6"
           }`}
         >
@@ -363,7 +363,7 @@ export default function ChatClient() {
 
           <button
             onClick={createNewChat}
-            className={`flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/25 transition ${
+            className={`flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-blue-600 to-blue-500 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/25 transition ${
               sidebarCollapsed ? "h-12 w-12 mx-auto" : "px-4 py-2"
             }`}
             title="New chat"
@@ -459,7 +459,7 @@ export default function ChatClient() {
 
         {/* Mobile Sidebar */}
         {mobileSidebarOpen && (
-          <div className="fixed inset-0 z-[200] md:hidden">
+          <div className="fixed inset-0 z-200 md:hidden">
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileSidebarOpen(false)}
@@ -484,7 +484,7 @@ export default function ChatClient() {
 
               <button
                 onClick={createNewChat}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/25 transition px-4 py-2"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-blue-600 to-blue-500 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/25 transition px-4 py-2"
               >
                 <IPlus size={18} />
                 New Chat
@@ -559,7 +559,7 @@ export default function ChatClient() {
         {/* Main */}
         <main className="flex-1 flex flex-col items-center px-3 sm:px-6 py-5 sm:py-10">
           <div className="w-full max-w-4xl flex-1">
-            <div className="h-full rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.55)] overflow-hidden flex flex-col">
+            <div className="h-full rounded-3xl border border-white/10 bg-white/4 backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.55)] overflow-hidden flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/5">
                 <div className="flex items-center gap-3 min-w-0">
@@ -621,8 +621,8 @@ export default function ChatClient() {
                       <div
                         className={`max-w-[90%] sm:max-w-[78%] rounded-2xl px-4 py-3 whitespace-pre-wrap border shadow-sm ${
                           msg.role === "user"
-                            ? "bg-gradient-to-br from-blue-600/30 to-blue-500/10 border-blue-400/20 text-white/90 shadow-blue-500/10"
-                            : "bg-white/[0.055] border-white/10 text-white/85"
+                            ? "bg-linear-to-br from-blue-600/30 to-blue-500/10 border-blue-400/20 text-white/90 shadow-blue-500/10"
+                            : "bg-white/5.5 border-white/10 text-white/85"
                         }`}
                       >
                         {msg.content}
@@ -665,7 +665,7 @@ export default function ChatClient() {
               <div className="rounded-2xl border border-white/10 bg-[#0b1220]/70 backdrop-blur-xl p-2 focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-400/30 transition-all duration-200 shadow-[0_10px_40px_rgba(0,0,0,0.45)]">
                 <div className="flex items-end gap-2">
                   <textarea
-                    className="min-h-[56px] flex-1 resize-none bg-transparent px-3 py-3 text-white/90 placeholder:text-white/35 outline-none"
+                    className="min-h-14 flex-1 resize-none bg-transparent px-3 py-3 text-white/90 placeholder:text-white/35 outline-none"
                     rows={2}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
