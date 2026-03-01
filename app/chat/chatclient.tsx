@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus,
   Search,
@@ -33,7 +33,7 @@ type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
-  image?: string; // stored, not rendered (stub)
+  image?: string; // stored, but not rendered
   quickReplies?: string[];
   statusLine?: string;
 };
@@ -44,8 +44,8 @@ type Chat = {
   messages: Message[];
 };
 
-const LS_TIER = "kinderai-tier";
 const LS_CHATS = "kinderai-chats";
+const LS_TIER = "kinderai-tier";
 
 const newId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -67,15 +67,18 @@ const makeTitle = (text: string) => {
   return words.slice(0, -1).join(" ") + "…";
 };
 
-const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-const cleanQuickReplyLabel = (t: string) => t.replace(/^\[MODE:[A-Z]+\]\s*/i, "");
+const clamp = (n: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, n));
+
+const cleanQuickReplyLabel = (t: string) =>
+  t.replace(/^\[MODE:[A-Z]+\]\s*/i, "");
 
 const pickStatusLine = () => {
   const options = [
     "Ready when you are.",
     "No rush. Take your time.",
     "We can keep it simple.",
-    "Waiting for your next input.",
+    "One step at a time.",
   ];
   return options[Math.floor(Math.random() * options.length)];
 };
@@ -117,9 +120,7 @@ export default function ChatClient() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const modelMenuRef = useRef<HTMLDivElement>(null);
-  const chatMenuContainerRef = useRef<HTMLDivElement>(null);
 
   const activeChat = useMemo(
     () => chats.find((c) => c.id === activeChatId),
@@ -131,15 +132,11 @@ export default function ChatClient() {
     setMobileMenu(null);
   };
 
-  // Close chat menus only if clicking outside menus
+  // Close chat menus when clicking outside
   useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (chatMenuContainerRef.current?.contains(target)) return;
-      closeAllChatMenus();
-    };
-    window.addEventListener("mousedown", onDown);
-    return () => window.removeEventListener("mousedown", onDown);
+    const close = () => closeAllChatMenus();
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
   }, []);
 
   // Close mobile chat menu on scroll/resize
@@ -166,8 +163,6 @@ export default function ChatClient() {
         setModelMenuOpen(false);
         setModelSheetOpen(false);
         setUpgradeOpen(false);
-        setRenameTargetId(null);
-        setDeleteTargetId(null);
       }
     };
 
@@ -205,7 +200,11 @@ export default function ChatClient() {
         // ignore
       }
     }
-    const firstChat: Chat = { id: newId(), title: "Untitled", messages: [] };
+    const firstChat: Chat = {
+      id: newId(),
+      title: "Untitled",
+      messages: [],
+    };
     setChats([firstChat]);
     setActiveChatId(firstChat.id);
   }, []);
@@ -235,7 +234,9 @@ export default function ChatClient() {
         if (c.id !== chatId) return c;
         return {
           ...c,
-          messages: c.messages.map((m) => (m.id === messageId ? { ...m, quickReplies: [] } : m)),
+          messages: c.messages.map((m) =>
+            m.id === messageId ? { ...m, quickReplies: [] } : m
+          ),
         };
       })
     );
@@ -246,14 +247,21 @@ export default function ChatClient() {
     const messageToSend = (text ?? "").trim();
     if (!messageToSend) return;
 
-    const userMessage: Message = { id: newId(), role: "user", content: messageToSend };
+    const userMessage: Message = {
+      id: newId(),
+      role: "user",
+      content: messageToSend,
+    };
 
     setChats((prev) =>
       prev.map((chat) =>
         chat.id === activeChat.id
           ? {
               ...chat,
-              title: chat.messages.length === 0 ? makeTitle(messageToSend) : chat.title,
+              title:
+                chat.messages.length === 0
+                  ? makeTitle(messageToSend)
+                  : chat.title,
               messages: [...chat.messages, userMessage],
             }
           : chat
@@ -276,13 +284,17 @@ export default function ChatClient() {
         id: newId(),
         role: "assistant",
         content: data?.reply ?? "No response.",
-        quickReplies: Array.isArray(data?.quickReplies) ? data.quickReplies : [],
+        quickReplies: Array.isArray(data?.quickReplies)
+          ? data.quickReplies
+          : [],
         statusLine: pickStatusLine(),
       };
 
       setChats((prev) =>
         prev.map((chat) =>
-          chat.id === activeChat.id ? { ...chat, messages: [...chat.messages, aiMessage] } : chat
+          chat.id === activeChat.id
+            ? { ...chat, messages: [...chat.messages, aiMessage] }
+            : chat
         )
       );
     } catch {
@@ -296,7 +308,9 @@ export default function ChatClient() {
 
       setChats((prev) =>
         prev.map((chat) =>
-          chat.id === activeChat.id ? { ...chat, messages: [...chat.messages, aiMessage] } : chat
+          chat.id === activeChat.id
+            ? { ...chat, messages: [...chat.messages, aiMessage] }
+            : chat
         )
       );
     } finally {
@@ -323,7 +337,9 @@ export default function ChatClient() {
 
       setChats((prev) =>
         prev.map((chat) =>
-          chat.id === activeChat.id ? { ...chat, messages: [...chat.messages, imageMessage] } : chat
+          chat.id === activeChat.id
+            ? { ...chat, messages: [...chat.messages, imageMessage] }
+            : chat
         )
       );
     };
@@ -341,7 +357,9 @@ export default function ChatClient() {
     if (!renameTargetId) return;
     const next = renameValue.trim();
     if (!next) return;
-    setChats((prev) => prev.map((c) => (c.id === renameTargetId ? { ...c, title: next } : c)));
+    setChats((prev) =>
+      prev.map((c) => (c.id === renameTargetId ? { ...c, title: next } : c))
+    );
     setRenameTargetId(null);
   };
 
@@ -351,27 +369,30 @@ export default function ChatClient() {
     if (!deleteTargetId) return;
 
     const remaining = chats.filter((c) => c.id !== deleteTargetId);
-    setChats(remaining);
+    const nextChats =
+      remaining.length > 0
+        ? remaining
+        : [{ id: newId(), title: "Untitled", messages: [] }];
+
+    setChats(nextChats);
 
     if (activeChatId === deleteTargetId) {
-      if (remaining.length > 0) setActiveChatId(remaining[0].id);
-      else {
-        const fresh: Chat = { id: newId(), title: "Untitled", messages: [] };
-        setChats([fresh]);
-        setActiveChatId(fresh.id);
-      }
+      setActiveChatId(nextChats[0].id);
     }
+
     setDeleteTargetId(null);
   };
 
   const filteredChats = useMemo(() => {
-    const q = searchQuery.toLowerCase();
-    return chats.filter((chat) => {
-      return (
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return chats;
+    return chats.filter(
+      (chat) =>
         chat.title.toLowerCase().includes(q) ||
-        chat.messages.some((msg) => (msg.content ?? "").toLowerCase().includes(q))
-      );
-    });
+        chat.messages.some((msg) =>
+          (msg.content ?? "").toLowerCase().includes(q)
+        )
+    );
   }, [chats, searchQuery]);
 
   const visibleChats = useMemo(() => {
@@ -382,7 +403,6 @@ export default function ChatClient() {
   const selectChat = (id: string) => {
     setActiveChatId(id);
     setMobileSidebarOpen(false);
-    closeAllChatMenus();
   };
 
   const openMobileMenu = (chatId: string, buttonEl: HTMLElement) => {
@@ -439,8 +459,10 @@ export default function ChatClient() {
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold text-white/90 leading-tight">KinderAI</h2>
-            <div className="text-xs text-white/45">Chat</div>
+            <h2 className="text-lg font-semibold text-white/90 leading-tight">
+              KinderAI
+            </h2>
+            {/* removed "Chat" label */}
           </div>
 
           <button
@@ -480,7 +502,7 @@ export default function ChatClient() {
         </div>
       )}
 
-      {(isMobile || (!isMobile && !sidebarCollapsed)) && (
+      {isMobile || (!isMobile && !sidebarCollapsed) ? (
         <div className="mt-6 flex gap-3 text-sm">
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -498,14 +520,34 @@ export default function ChatClient() {
             Apps
           </button>
         </div>
+      ) : (
+        <div className="mt-5 flex flex-col items-center gap-4">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+            title="Images"
+          >
+            <ImageIcon size={20} />
+          </button>
+
+          <button
+            onClick={() => setShowApps(true)}
+            className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+            title="Apps"
+          >
+            <Grid size={20} />
+          </button>
+        </div>
       )}
 
       {(isMobile || (!isMobile && !sidebarCollapsed)) && (
-        <div className="mt-8 mb-3 text-xs uppercase tracking-wider text-white/40">Your chats</div>
+        <div className="mt-8 mb-3 text-xs uppercase tracking-wider text-white/40">
+          Your chats
+        </div>
       )}
 
       {(isMobile || (!isMobile && !sidebarCollapsed)) && (
-        <div className="flex-1 overflow-y-auto space-y-2 pr-1" ref={chatMenuContainerRef}>
+        <div className="flex-1 overflow-y-auto space-y-2 pr-1">
           {visibleChats.map((chat) => {
             const isActive = chat.id === activeChatId;
             const desktopMenuOpen = !isMobile && openMenuFor === chat.id;
@@ -724,7 +766,7 @@ export default function ChatClient() {
 
         {/* Mobile drawer sidebar */}
         {mobileSidebarOpen && (
-          <div className="fixed inset-0 z-200 md:hidden">
+          <div className="fixed inset-0 z-50 md:hidden">
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileSidebarOpen(false)}
@@ -807,9 +849,7 @@ export default function ChatClient() {
                         >
                           <div className="flex flex-col items-start">
                             <span className="font-semibold">{MODEL_LABEL.pro}</span>
-                            <span className="text-xs text-white/45">
-                              Locked • Smarter, more contextual
-                            </span>
+                            <span className="text-xs text-white/45">Locked • Smarter, more contextual</span>
                           </div>
                           <Lock size={16} className="text-white/45" />
                         </button>
@@ -831,39 +871,36 @@ export default function ChatClient() {
                   </div>
                 </div>
 
-                <div className="text-xs text-white/35 hidden sm:block">
+                <div className="text-xs text-white/35 hidden sm:block truncate max-w-[55%]">
                   {activeChat?.messages.length ? activeChat.title : "KinderAI"}
                 </div>
               </div>
 
               {/* Messages */}
               <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+                {/* EMPTY STATE (REMOVED big center icon+KinderAI title) */}
                 {activeChat && activeChat.messages.length === 0 && (
                   <div className="h-full flex items-center justify-center">
-                    <div className="max-w-md text-center">
-                      <div className="mx-auto mb-4 h-14 w-14 rounded-3xl bg-white/5 border border-white/10 overflow-hidden shadow-lg shadow-blue-500/10">
-                        <img src="/logo.png" alt="KinderAI" className="h-full w-full object-contain" />
-                      </div>
-                      <h1 className="text-2xl font-semibold text-white/90">KinderAI</h1>
-                      <p className="mt-2 text-sm text-white/50">
-                        Choose a direction. I’ll guide it step by step.
+                    <div className="max-w-lg text-center">
+                      <h1 className="text-3xl sm:text-4xl font-semibold text-white/90">
+                        How are you today?
+                      </h1>
+                      <p className="mt-2 text-sm sm:text-base text-white/50">
+                        KinderAI helps you move from emotion → clarity → action.
                       </p>
 
-                      <div className="mt-5 flex flex-wrap justify-center gap-2">
-                        {[
-                          "[MODE:GROUND] Calm down",
-                          "Get clarity",
-                          "Make a plan",
-                          "[MODE:PAUSE] Rewrite a message",
-                        ].map((t) => (
-                          <button
-                            key={t}
-                            onClick={() => setInput(t)}
-                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 transition"
-                          >
-                            {cleanQuickReplyLabel(t)}
-                          </button>
-                        ))}
+                      <div className="mt-6 flex flex-wrap justify-center gap-2">
+                        {["[MODE:GROUND] Calm down", "Get clarity", "Make a plan", "[MODE:PAUSE] Rewrite a message"].map(
+                          (t) => (
+                            <button
+                              key={t}
+                              onClick={() => setInput(t)}
+                              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 transition"
+                            >
+                              {cleanQuickReplyLabel(t)}
+                            </button>
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
@@ -929,15 +966,17 @@ export default function ChatClient() {
                         sendText();
                       }
                     }}
-                    placeholder="Write a message"
+                    placeholder="Write a message…"
                   />
 
-                  {/* show on all sizes */}
+                  {/* SEND button on ALL screen sizes */}
                   <button
                     onClick={sendText}
                     disabled={loading || !input.trim()}
                     className={`h-11 w-11 rounded-full flex items-center justify-center transition-all duration-200 ${
-                      input.trim() ? "bg-white/10 text-white hover:bg-white/15" : "bg-white/5 text-white/30"
+                      input.trim()
+                        ? "bg-white/10 text-white hover:bg-white/15"
+                        : "bg-white/5 text-white/30"
                     }`}
                     aria-label="Send"
                     title="Send"
@@ -962,11 +1001,17 @@ export default function ChatClient() {
           )}
         </main>
 
-        <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleImageUpload} />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleImageUpload}
+        />
 
         {/* Apps Modal */}
         {showApps && (
-          <div className="fixed inset-0 z-999 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
             <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/90 p-6 shadow-2xl">
               <h3 className="text-lg font-semibold mb-2">Apps</h3>
               <p className="text-white/55 text-sm mb-5">Future tools will appear here.</p>
@@ -982,8 +1027,11 @@ export default function ChatClient() {
 
         {/* Mobile model sheet */}
         {modelSheetOpen && (
-          <div className="fixed inset-0 z-999 md:hidden">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setModelSheetOpen(false)} />
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setModelSheetOpen(false)}
+            />
             <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl border-t border-white/10 bg-[#0b1220]/95 backdrop-blur-2xl p-4 shadow-2xl">
               <div className="flex items-center justify-between">
                 <div className="text-sm font-semibold text-white/90">Select model</div>
@@ -1051,8 +1099,14 @@ export default function ChatClient() {
 
         {/* Upgrade modal */}
         {upgradeOpen && (
-          <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" onClick={() => setUpgradeOpen(false)}>
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/95 shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+            onClick={() => setUpgradeOpen(false)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/95 shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6">
                 <div className="flex items-start justify-between">
                   <div>
@@ -1060,7 +1114,9 @@ export default function ChatClient() {
                       <Sparkles size={18} className="text-white/80" />
                       Upgrade to Pro
                     </h3>
-                    <p className="mt-2 text-sm text-white/55">Unlock more accurate responses, better context, and less repetition.</p>
+                    <p className="mt-2 text-sm text-white/55">
+                      Unlock more accurate responses, better context, and less repetition.
+                    </p>
                   </div>
 
                   <button
@@ -1081,11 +1137,16 @@ export default function ChatClient() {
                   </ul>
                 </div>
 
-                <div className="mt-3 text-xs text-white/35">Payments aren’t enabled yet — this is UI-ready for later.</div>
+                <div className="mt-3 text-xs text-white/35">
+                  Payments aren’t enabled yet — this is UI-ready for later.
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
-                <button onClick={() => setUpgradeOpen(false)} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition">
+                <button
+                  onClick={() => setUpgradeOpen(false)}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
+                >
                   Close
                 </button>
                 <button
@@ -1104,8 +1165,14 @@ export default function ChatClient() {
 
         {/* Delete modal */}
         {deleteTargetId && (
-          <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" onClick={() => setDeleteTargetId(null)}>
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/95 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+            onClick={() => setDeleteTargetId(null)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/95 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6">
                 <div className="flex items-start justify-between">
                   <h3 className="text-lg font-semibold text-white/90">Delete chat?</h3>
@@ -1120,16 +1187,25 @@ export default function ChatClient() {
 
                 <p className="mt-3 text-sm text-white/60">
                   This will delete{" "}
-                  <span className="font-semibold text-white/80">{chats.find((c) => c.id === deleteTargetId)?.title ?? "this chat"}</span>.
+                  <span className="font-semibold text-white/80">
+                    {chats.find((c) => c.id === deleteTargetId)?.title ?? "this chat"}
+                  </span>
+                  .
                 </p>
                 <p className="mt-2 text-xs text-white/35">This action can’t be undone.</p>
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
-                <button onClick={() => setDeleteTargetId(null)} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition">
+                <button
+                  onClick={() => setDeleteTargetId(null)}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
+                >
                   Cancel
                 </button>
-                <button onClick={confirmDeleteChat} className="rounded-full bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500 transition">
+                <button
+                  onClick={confirmDeleteChat}
+                  className="rounded-full bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500 transition"
+                >
                   Delete
                 </button>
               </div>
@@ -1139,8 +1215,14 @@ export default function ChatClient() {
 
         {/* Rename modal */}
         {renameTargetId && (
-          <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" onClick={() => setRenameTargetId(null)}>
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/95 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+            onClick={() => setRenameTargetId(null)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/95 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6">
                 <div className="flex items-start justify-between">
                   <h3 className="text-lg font-semibold text-white/90">Rename chat</h3>
@@ -1169,10 +1251,16 @@ export default function ChatClient() {
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
-                <button onClick={() => setRenameTargetId(null)} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition">
+                <button
+                  onClick={() => setRenameTargetId(null)}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
+                >
                   Cancel
                 </button>
-                <button onClick={confirmRenameChat} className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition">
+                <button
+                  onClick={confirmRenameChat}
+                  className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition"
+                >
                   Save
                 </button>
               </div>
