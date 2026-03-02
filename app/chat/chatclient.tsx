@@ -21,6 +21,7 @@ import {
   Lock,
   Sparkles,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 
 type Tier = "lite" | "pro";
@@ -84,6 +85,10 @@ const pickStatusLine = () => {
   return options[Math.floor(Math.random() * options.length)];
 };
 
+// Hover glow for clickable things
+const INTERACTIVE_GLOW =
+  "transition-all duration-300 ease-out hover:text-white hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.35)]";
+
 export default function ChatClient() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
@@ -105,8 +110,8 @@ export default function ChatClient() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // ✅ Your chats collapse
-  const [chatsCollapsed, setChatsCollapsed] = useState(false);
+  // Collapsible "Your chats"
+  const [chatsExpanded, setChatsExpanded] = useState(true);
 
   // Menus (chat options)
   const [openMenuFor, setOpenMenuFor] = useState<string | null>(null);
@@ -135,15 +140,6 @@ export default function ChatClient() {
     setOpenMenuFor(null);
     setMobileMenu(null);
   };
-
-  // ✅ Hover glow styles (pill + clickable text)
-  const glowPill =
-    "transition-all duration-200 hover:bg-white/8 hover:border-white/20 hover:text-white " +
-    "hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_22px_rgba(255,255,255,0.10)] " +
-    "active:scale-[0.99]";
-  const glowText =
-    "transition-all duration-200 hover:text-white/95 " +
-    "hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.30)]";
 
   // Close chat menus when clicking outside
   useEffect(() => {
@@ -444,18 +440,8 @@ export default function ChatClient() {
     <>
       {isMobile ? (
         <div className="flex items-center justify-between mb-4">
-          <button
-            type="button"
-            onClick={() => {
-              setMobileSidebarOpen(false);
-              // optional: could navigate home later
-            }}
-            className={`flex items-center gap-3 ${glowText}`}
-            title="KinderAI"
-          >
-            <div
-              className={`w-10 h-10 rounded-2xl bg-white/5 border border-white/10 overflow-hidden ${glowPill}`}
-            >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 overflow-hidden">
               <img
                 src="/logo.png"
                 alt="KinderAI"
@@ -463,11 +449,11 @@ export default function ChatClient() {
               />
             </div>
             <div className="text-sm font-semibold text-white/90">KinderAI</div>
-          </button>
+          </div>
 
           <button
             onClick={() => setMobileSidebarOpen(false)}
-            className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
+            className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
             aria-label="Close sidebar"
           >
             <X size={16} />
@@ -477,7 +463,7 @@ export default function ChatClient() {
         <div className="flex items-center justify-center mb-3">
           <button
             onClick={() => setSidebarCollapsed(false)}
-            className={`h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
+            className={`h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
             title="Expand sidebar"
           >
             <PanelLeft size={16} />
@@ -485,37 +471,23 @@ export default function ChatClient() {
         </div>
       ) : (
         <div className="flex items-center gap-3 mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              // optional: navigate home later
-            }}
-            className={`w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-lg overflow-hidden ${glowPill}`}
-            title="KinderAI"
-          >
+          <div className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-lg overflow-hidden">
             <img
               src="/logo.png"
               alt="KinderAI Logo"
               className="w-full h-full object-contain"
             />
-          </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              // optional: navigate home later
-            }}
-            className={`text-left ${glowText}`}
-            title="KinderAI"
-          >
+          <div>
             <h2 className="text-lg font-semibold text-white/90 leading-tight">
               KinderAI
             </h2>
-          </button>
+          </div>
 
           <button
             onClick={() => setSidebarCollapsed(true)}
-            className={`ml-auto h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
+            className={`ml-auto h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
             title="Collapse sidebar"
           >
             <PanelLeft size={16} />
@@ -525,7 +497,7 @@ export default function ChatClient() {
 
       <button
         onClick={createNewChat}
-        className={`flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-blue-600 to-blue-500 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/25 transition ${
+        className={`flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-blue-600 to-blue-500 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/25 hover:brightness-[1.03] transition ${
           !isMobile && sidebarCollapsed ? "h-12 w-12 mx-auto" : "px-4 py-2"
         }`}
         title="New chat"
@@ -536,7 +508,7 @@ export default function ChatClient() {
 
       {(isMobile || (!isMobile && !sidebarCollapsed)) && (
         <div className="mt-6">
-          <div className={`flex items-center gap-2 text-white/60 mb-2 text-sm ${glowText}`}>
+          <div className="flex items-center gap-2 text-white/60 mb-2 text-sm">
             <Search size={16} />
             Search chats
           </div>
@@ -554,7 +526,7 @@ export default function ChatClient() {
         <div className="mt-6 flex gap-3 text-sm">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 ${glowPill}`}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
           >
             <ImageIcon size={16} />
             Images
@@ -562,7 +534,7 @@ export default function ChatClient() {
 
           <button
             onClick={() => setShowApps(true)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 ${glowPill}`}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
           >
             <Grid size={16} />
             Apps
@@ -572,7 +544,7 @@ export default function ChatClient() {
         <div className="mt-5 flex flex-col items-center gap-4">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className={`h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 ${glowPill}`}
+            className={`h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
             title="Images"
           >
             <ImageIcon size={20} />
@@ -580,7 +552,7 @@ export default function ChatClient() {
 
           <button
             onClick={() => setShowApps(true)}
-            className={`h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 ${glowPill}`}
+            className={`h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
             title="Apps"
           >
             <Grid size={20} />
@@ -589,21 +561,32 @@ export default function ChatClient() {
       )}
 
       {(isMobile || (!isMobile && !sidebarCollapsed)) && (
-        <div className="mt-8 mb-2">
-          {/* Header row with collapse arrow (arrow only when collapsed; disappears when open) */}
+        <div className="mt-8 mb-3 flex items-center justify-between text-xs uppercase tracking-wider text-white/40">
+          <span>Your chats</span>
+
+          {/* Arrow only glows */}
           <button
             type="button"
-            onClick={() => setChatsCollapsed((v) => !v)}
-            className={`w-full flex items-center justify-between text-xs uppercase tracking-wider text-white/40 ${glowText}`}
-            title="Toggle chats"
+            onClick={(e) => {
+              e.stopPropagation();
+              setChatsExpanded((v) => !v);
+            }}
+            className="group flex items-center justify-center"
+            aria-label={chatsExpanded ? "Collapse chats" : "Expand chats"}
+            title={chatsExpanded ? "Collapse chats" : "Expand chats"}
           >
-            <span>Your chats</span>
-            {chatsCollapsed && <ChevronRight size={14} className="text-white/45" />}
+            <span className="inline-flex items-center justify-center text-white/40 transition-all duration-300 ease-out group-hover:text-blue-400 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.9)] group-hover:translate-x-1">
+              {chatsExpanded ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
+            </span>
           </button>
         </div>
       )}
 
-      {(isMobile || (!isMobile && !sidebarCollapsed)) && !chatsCollapsed && (
+      {(isMobile || (!isMobile && !sidebarCollapsed)) && chatsExpanded && (
         <div className="flex-1 overflow-y-auto space-y-2 pr-1">
           {visibleChats.map((chat) => {
             const isActive = chat.id === activeChatId;
@@ -621,7 +604,7 @@ export default function ChatClient() {
               >
                 <button
                   onClick={() => selectChat(chat.id)}
-                  className={`flex-1 text-left px-3 py-2 text-sm truncate ${glowText}`}
+                  className={`flex-1 text-left px-3 py-2 text-sm truncate ${INTERACTIVE_GLOW}`}
                   title={chat.title}
                 >
                   {chat.title}
@@ -635,11 +618,13 @@ export default function ChatClient() {
                       if (mobileMenu?.chatId === chat.id) setMobileMenu(null);
                       else openMobileMenu(chat.id, el);
                     } else {
-                      setOpenMenuFor((prev) => (prev === chat.id ? null : chat.id));
+                      setOpenMenuFor((prev) =>
+                        prev === chat.id ? null : chat.id
+                      );
                     }
                   }}
-                  className={`mr-2 h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 transition ${
-                    isMobile ? `flex ${glowPill}` : `hidden group-hover:flex ${glowPill}`
+                  className={`mr-2 h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition ${
+                    isMobile ? "flex" : "hidden group-hover:flex"
                   }`}
                   aria-label="Chat options"
                   title="Options"
@@ -653,7 +638,7 @@ export default function ChatClient() {
                     className="absolute right-2 top-11 z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
                   >
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Share (coming soon)");
@@ -664,7 +649,7 @@ export default function ChatClient() {
                     </button>
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Start a group chat (coming soon)");
@@ -675,7 +660,7 @@ export default function ChatClient() {
                     </button>
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         requestRenameChat(chat.id);
@@ -688,7 +673,7 @@ export default function ChatClient() {
                     <div className="h-px bg-white/10 my-1" />
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Pin chat (coming soon)");
@@ -699,7 +684,7 @@ export default function ChatClient() {
                     </button>
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Archive (coming soon)");
@@ -729,7 +714,7 @@ export default function ChatClient() {
                     className="fixed z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
                   >
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Share (coming soon)");
@@ -740,7 +725,7 @@ export default function ChatClient() {
                     </button>
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Start a group chat (coming soon)");
@@ -751,7 +736,7 @@ export default function ChatClient() {
                     </button>
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         requestRenameChat(chat.id);
@@ -764,7 +749,7 @@ export default function ChatClient() {
                     <div className="h-px bg-white/10 my-1" />
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Pin chat (coming soon)");
@@ -775,7 +760,7 @@ export default function ChatClient() {
                     </button>
 
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
                       onClick={() => {
                         closeAllChatMenus();
                         alert("Archive (coming soon)");
@@ -842,7 +827,7 @@ export default function ChatClient() {
               <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/5">
                 <div className="flex items-center gap-3 min-w-0">
                   <button
-                    className={`md:hidden h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
+                    className={`md:hidden h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
                     onClick={() => setMobileSidebarOpen(true)}
                     aria-label="Open sidebar"
                     title="Menu"
@@ -855,7 +840,7 @@ export default function ChatClient() {
                     <button
                       type="button"
                       onClick={() => setModelMenuOpen((v) => !v)}
-                      className={`hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 ${glowPill}`}
+                      className={`hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
                       aria-label="Select model"
                       title="Select model"
                     >
@@ -866,7 +851,7 @@ export default function ChatClient() {
                     <button
                       type="button"
                       onClick={() => setModelSheetOpen(true)}
-                      className={`md:hidden flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 ${glowPill}`}
+                      className={`md:hidden flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
                       aria-label="Select model"
                       title="Select model"
                     >
@@ -884,7 +869,7 @@ export default function ChatClient() {
                         </div>
 
                         <button
-                          className={`w-full flex items-center justify-between px-3 py-3 text-sm text-white/85 hover:bg-white/5 ${glowText}`}
+                          className="w-full flex items-center justify-between px-3 py-3 text-sm text-white/85 hover:bg-white/5 transition"
                           onClick={() => {
                             setTier("lite");
                             setModelMenuOpen(false);
@@ -902,7 +887,7 @@ export default function ChatClient() {
                         </button>
 
                         <button
-                          className={`w-full flex items-center justify-between px-3 py-3 text-sm text-white/75 hover:bg-white/5 ${glowText}`}
+                          className="w-full flex items-center justify-between px-3 py-3 text-sm text-white/75 hover:bg-white/5 transition"
                           onClick={() => {
                             setModelMenuOpen(false);
                             setUpgradeOpen(true);
@@ -920,7 +905,7 @@ export default function ChatClient() {
                         <div className="h-px bg-white/10" />
 
                         <button
-                          className={`w-full px-3 py-3 text-sm text-white/90 hover:bg-white/5 flex items-center gap-2 ${glowText}`}
+                          className="w-full px-3 py-3 text-sm text-white/90 hover:bg-white/5 transition flex items-center gap-2"
                           onClick={() => {
                             setModelMenuOpen(false);
                             setUpgradeOpen(true);
@@ -961,7 +946,7 @@ export default function ChatClient() {
                           <button
                             key={t}
                             onClick={() => setInput(t)}
-                            className={`rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 ${glowPill}`}
+                            className={`rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
                           >
                             {cleanQuickReplyLabel(t)}
                           </button>
@@ -1007,7 +992,7 @@ export default function ChatClient() {
                                 hideQuickRepliesForMessage(activeChat.id, msg.id);
                                 sendMessage(qr);
                               }}
-                              className={`rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 ${glowPill}`}
+                              className={`rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
                             >
                               {cleanQuickReplyLabel(qr)}
                             </button>
@@ -1047,7 +1032,7 @@ export default function ChatClient() {
                     disabled={loading || !input.trim()}
                     className={`h-11 w-11 rounded-full flex items-center justify-center transition-all duration-200 ${
                       input.trim()
-                        ? "bg-white/10 text-white hover:bg-white/15 hover:shadow-[0_0_20px_rgba(255,255,255,0.12)]"
+                        ? "bg-white/10 text-white hover:bg-white/15"
                         : "bg-white/5 text-white/30"
                     }`}
                     aria-label="Send"
@@ -1067,7 +1052,7 @@ export default function ChatClient() {
                     <button
                       key={t}
                       onClick={() => setInput((prev) => (prev ? prev + " " + t : t))}
-                      className={`rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/65 ${glowPill}`}
+                      className={`rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/65 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
                     >
                       {cleanQuickReplyLabel(t)}
                     </button>
@@ -1091,12 +1076,10 @@ export default function ChatClient() {
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
             <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/90 p-6 shadow-2xl">
               <h3 className="text-lg font-semibold mb-2">Apps</h3>
-              <p className="text-white/55 text-sm mb-5">
-                Future tools will appear here.
-              </p>
+              <p className="text-white/55 text-sm mb-5">Future tools will appear here.</p>
               <button
                 onClick={() => setShowApps(false)}
-                className={`rounded-xl bg-blue-600 px-4 py-2 hover:bg-blue-500 transition ${glowPill}`}
+                className="rounded-xl bg-blue-600 px-4 py-2 hover:bg-blue-500 transition"
               >
                 Close
               </button>
@@ -1113,12 +1096,10 @@ export default function ChatClient() {
             />
             <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl border-t border-white/10 bg-[#0b1220]/95 backdrop-blur-2xl p-4 shadow-2xl">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-white/90">
-                  Select model
-                </div>
+                <div className="text-sm font-semibold text-white/90">Select model</div>
                 <button
                   onClick={() => setModelSheetOpen(false)}
-                  className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
+                  className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 ${INTERACTIVE_GLOW}`}
                   aria-label="Close"
                 >
                   <X size={16} />
@@ -1127,7 +1108,7 @@ export default function ChatClient() {
 
               <div className="mt-4 space-y-2">
                 <button
-                  className={`w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left ${glowPill}`}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10 transition"
                   onClick={() => {
                     setTier("lite");
                     setModelSheetOpen(false);
@@ -1135,19 +1116,15 @@ export default function ChatClient() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-semibold text-white/90">
-                        {MODEL_LABEL.lite}
-                      </div>
-                      <div className="text-xs text-white/45 mt-0.5">
-                        Free • Calm-first replies
-                      </div>
+                      <div className="text-sm font-semibold text-white/90">{MODEL_LABEL.lite}</div>
+                      <div className="text-xs text-white/45 mt-0.5">Free • Calm-first replies</div>
                     </div>
                     {tier === "lite" && <div className="text-white/70">✓</div>}
                   </div>
                 </button>
 
                 <button
-                  className={`w-full rounded-2xl border border-white/10 bg-white/4 px-4 py-3 text-left ${glowPill}`}
+                  className="w-full rounded-2xl border border-white/10 bg-white/4 px-4 py-3 text-left hover:bg-white/10 transition"
                   onClick={() => {
                     setModelSheetOpen(false);
                     setUpgradeOpen(true);
@@ -1156,19 +1133,16 @@ export default function ChatClient() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-sm font-semibold text-white/80">
-                        {MODEL_LABEL.pro}{" "}
-                        <span className="text-white/40">• Locked</span>
+                        {MODEL_LABEL.pro} <span className="text-white/40">• Locked</span>
                       </div>
-                      <div className="text-xs text-white/45 mt-0.5">
-                        Smarter responses + more context
-                      </div>
+                      <div className="text-xs text-white/45 mt-0.5">Smarter responses + more context</div>
                     </div>
                     <div className="text-white/45">🔒</div>
                   </div>
                 </button>
 
                 <button
-                  className={`w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition ${glowPill}`}
+                  className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition"
                   onClick={() => {
                     setModelSheetOpen(false);
                     setUpgradeOpen(true);
@@ -1209,7 +1183,7 @@ export default function ChatClient() {
 
                   <button
                     onClick={() => setUpgradeOpen(false)}
-                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-white ${glowPill}`}
+                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white ${INTERACTIVE_GLOW}`}
                     aria-label="Close"
                   >
                     <X size={16} />
@@ -1217,9 +1191,7 @@ export default function ChatClient() {
                 </div>
 
                 <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-sm font-semibold text-white/85">
-                    {MODEL_LABEL.pro}
-                  </div>
+                  <div className="text-sm font-semibold text-white/85">{MODEL_LABEL.pro}</div>
                   <ul className="mt-2 text-sm text-white/60 space-y-1">
                     <li>• More contextual replies</li>
                     <li>• Better emotional accuracy</li>
@@ -1235,7 +1207,7 @@ export default function ChatClient() {
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
                 <button
                   onClick={() => setUpgradeOpen(false)}
-                  className={`rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 ${glowPill}`}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
                 >
                   Close
                 </button>
@@ -1244,7 +1216,7 @@ export default function ChatClient() {
                     setUpgradeOpen(false);
                     alert("Upgrade flow coming soon.");
                   }}
-                  className={`rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition ${glowPill}`}
+                  className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition"
                 >
                   Continue
                 </button>
@@ -1268,7 +1240,7 @@ export default function ChatClient() {
                   <h3 className="text-lg font-semibold text-white/90">Delete chat?</h3>
                   <button
                     onClick={() => setDeleteTargetId(null)}
-                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-white ${glowPill}`}
+                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white ${INTERACTIVE_GLOW}`}
                     aria-label="Close"
                   >
                     <X size={16} />
@@ -1288,7 +1260,7 @@ export default function ChatClient() {
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
                 <button
                   onClick={() => setDeleteTargetId(null)}
-                  className={`rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 ${glowPill}`}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
                 >
                   Cancel
                 </button>
@@ -1318,7 +1290,7 @@ export default function ChatClient() {
                   <h3 className="text-lg font-semibold text-white/90">Rename chat</h3>
                   <button
                     onClick={() => setRenameTargetId(null)}
-                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-white ${glowPill}`}
+                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white ${INTERACTIVE_GLOW}`}
                     aria-label="Close"
                   >
                     <X size={16} />
@@ -1343,13 +1315,13 @@ export default function ChatClient() {
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
                 <button
                   onClick={() => setRenameTargetId(null)}
-                  className={`rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 ${glowPill}`}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmRenameChat}
-                  className={`rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition ${glowPill}`}
+                  className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition"
                 >
                   Save
                 </button>
