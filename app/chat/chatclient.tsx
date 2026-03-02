@@ -20,7 +20,6 @@ import {
   Check,
   Lock,
   Sparkles,
-  ChevronDown,
   ChevronRight,
 } from "lucide-react";
 
@@ -106,8 +105,8 @@ export default function ChatClient() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // ✅ NEW: collapsible "Your chats"
-  const [chatsSectionOpen, setChatsSectionOpen] = useState(true);
+  // ✅ Your chats collapse
+  const [chatsCollapsed, setChatsCollapsed] = useState(false);
 
   // Menus (chat options)
   const [openMenuFor, setOpenMenuFor] = useState<string | null>(null);
@@ -136,6 +135,15 @@ export default function ChatClient() {
     setOpenMenuFor(null);
     setMobileMenu(null);
   };
+
+  // ✅ Hover glow styles (pill + clickable text)
+  const glowPill =
+    "transition-all duration-200 hover:bg-white/8 hover:border-white/20 hover:text-white " +
+    "hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_22px_rgba(255,255,255,0.10)] " +
+    "active:scale-[0.99]";
+  const glowText =
+    "transition-all duration-200 hover:text-white/95 " +
+    "hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.30)]";
 
   // Close chat menus when clicking outside
   useEffect(() => {
@@ -436,8 +444,18 @@ export default function ChatClient() {
     <>
       {isMobile ? (
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setMobileSidebarOpen(false);
+              // optional: could navigate home later
+            }}
+            className={`flex items-center gap-3 ${glowText}`}
+            title="KinderAI"
+          >
+            <div
+              className={`w-10 h-10 rounded-2xl bg-white/5 border border-white/10 overflow-hidden ${glowPill}`}
+            >
               <img
                 src="/logo.png"
                 alt="KinderAI"
@@ -445,11 +463,11 @@ export default function ChatClient() {
               />
             </div>
             <div className="text-sm font-semibold text-white/90">KinderAI</div>
-          </div>
+          </button>
 
           <button
             onClick={() => setMobileSidebarOpen(false)}
-            className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+            className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
             aria-label="Close sidebar"
           >
             <X size={16} />
@@ -459,7 +477,7 @@ export default function ChatClient() {
         <div className="flex items-center justify-center mb-3">
           <button
             onClick={() => setSidebarCollapsed(false)}
-            className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+            className={`h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
             title="Expand sidebar"
           >
             <PanelLeft size={16} />
@@ -467,23 +485,37 @@ export default function ChatClient() {
         </div>
       ) : (
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-lg overflow-hidden">
+          <button
+            type="button"
+            onClick={() => {
+              // optional: navigate home later
+            }}
+            className={`w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-lg overflow-hidden ${glowPill}`}
+            title="KinderAI"
+          >
             <img
               src="/logo.png"
               alt="KinderAI Logo"
               className="w-full h-full object-contain"
             />
-          </div>
+          </button>
 
-          <div>
+          <button
+            type="button"
+            onClick={() => {
+              // optional: navigate home later
+            }}
+            className={`text-left ${glowText}`}
+            title="KinderAI"
+          >
             <h2 className="text-lg font-semibold text-white/90 leading-tight">
               KinderAI
             </h2>
-          </div>
+          </button>
 
           <button
             onClick={() => setSidebarCollapsed(true)}
-            className="ml-auto h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+            className={`ml-auto h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
             title="Collapse sidebar"
           >
             <PanelLeft size={16} />
@@ -504,7 +536,7 @@ export default function ChatClient() {
 
       {(isMobile || (!isMobile && !sidebarCollapsed)) && (
         <div className="mt-6">
-          <div className="flex items-center gap-2 text-white/60 mb-2 text-sm">
+          <div className={`flex items-center gap-2 text-white/60 mb-2 text-sm ${glowText}`}>
             <Search size={16} />
             Search chats
           </div>
@@ -522,7 +554,7 @@ export default function ChatClient() {
         <div className="mt-6 flex gap-3 text-sm">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 hover:bg-white/10 transition"
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 ${glowPill}`}
           >
             <ImageIcon size={16} />
             Images
@@ -530,7 +562,7 @@ export default function ChatClient() {
 
           <button
             onClick={() => setShowApps(true)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 hover:bg-white/10 transition"
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white/70 ${glowPill}`}
           >
             <Grid size={16} />
             Apps
@@ -540,7 +572,7 @@ export default function ChatClient() {
         <div className="mt-5 flex flex-col items-center gap-4">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+            className={`h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 ${glowPill}`}
             title="Images"
           >
             <ImageIcon size={20} />
@@ -548,7 +580,7 @@ export default function ChatClient() {
 
           <button
             onClick={() => setShowApps(true)}
-            className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+            className={`h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 ${glowPill}`}
             title="Apps"
           >
             <Grid size={20} />
@@ -556,225 +588,219 @@ export default function ChatClient() {
         </div>
       )}
 
-      {/* ✅ Collapsible "Your chats" */}
       {(isMobile || (!isMobile && !sidebarCollapsed)) && (
-        <>
+        <div className="mt-8 mb-2">
+          {/* Header row with collapse arrow (arrow only when collapsed; disappears when open) */}
           <button
             type="button"
-            onClick={() => setChatsSectionOpen((v) => !v)}
-            className="mt-8 mb-3 w-full flex items-center justify-between text-xs uppercase tracking-wider text-white/40 hover:text-white/60 transition"
-            aria-label="Toggle chat topics"
+            onClick={() => setChatsCollapsed((v) => !v)}
+            className={`w-full flex items-center justify-between text-xs uppercase tracking-wider text-white/40 ${glowText}`}
+            title="Toggle chats"
           >
             <span>Your chats</span>
-            {chatsSectionOpen ? (
-              <ChevronDown size={14} className="text-white/35" />
-            ) : (
-              <ChevronRight size={14} className="text-white/35" />
-            )}
+            {chatsCollapsed && <ChevronRight size={14} className="text-white/45" />}
           </button>
+        </div>
+      )}
 
-          {chatsSectionOpen && (
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-              {visibleChats.map((chat) => {
-                const isActive = chat.id === activeChatId;
-                const desktopMenuOpen = !isMobile && openMenuFor === chat.id;
-                const mobileMenuOpen = !!isMobile && mobileMenu?.chatId === chat.id;
+      {(isMobile || (!isMobile && !sidebarCollapsed)) && !chatsCollapsed && (
+        <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+          {visibleChats.map((chat) => {
+            const isActive = chat.id === activeChatId;
+            const desktopMenuOpen = !isMobile && openMenuFor === chat.id;
+            const mobileMenuOpen = !!isMobile && mobileMenu?.chatId === chat.id;
 
-                return (
+            return (
+              <div
+                key={chat.id}
+                className={`group relative flex items-center rounded-xl border transition ${
+                  isActive
+                    ? "bg-blue-500/10 border-blue-400/20 shadow-sm shadow-blue-500/10"
+                    : "bg-white/0 border-transparent hover:bg-white/5 hover:border-white/10"
+                }`}
+              >
+                <button
+                  onClick={() => selectChat(chat.id)}
+                  className={`flex-1 text-left px-3 py-2 text-sm truncate ${glowText}`}
+                  title={chat.title}
+                >
+                  {chat.title}
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isMobile) {
+                      const el = e.currentTarget as HTMLElement;
+                      if (mobileMenu?.chatId === chat.id) setMobileMenu(null);
+                      else openMobileMenu(chat.id, el);
+                    } else {
+                      setOpenMenuFor((prev) => (prev === chat.id ? null : chat.id));
+                    }
+                  }}
+                  className={`mr-2 h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 transition ${
+                    isMobile ? `flex ${glowPill}` : `hidden group-hover:flex ${glowPill}`
+                  }`}
+                  aria-label="Chat options"
+                  title="Options"
+                >
+                  <MoreHorizontal size={16} />
+                </button>
+
+                {desktopMenuOpen && (
                   <div
-                    key={chat.id}
-                    className={`group relative flex items-center rounded-xl border transition ${
-                      isActive
-                        ? "bg-blue-500/10 border-blue-400/20 shadow-sm shadow-blue-500/10"
-                        : "bg-white/0 border-transparent hover:bg-white/5 hover:border-white/10"
-                    }`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-2 top-11 z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
                   >
                     <button
-                      onClick={() => selectChat(chat.id)}
-                      className="flex-1 text-left px-3 py-2 text-sm truncate"
-                      title={chat.title}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Share (coming soon)");
+                      }}
                     >
-                      {chat.title}
+                      <Share2 size={16} />
+                      Share
                     </button>
 
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isMobile) {
-                          const el = e.currentTarget as HTMLElement;
-                          if (mobileMenu?.chatId === chat.id) setMobileMenu(null);
-                          else openMobileMenu(chat.id, el);
-                        } else {
-                          setOpenMenuFor((prev) =>
-                            prev === chat.id ? null : chat.id
-                          );
-                        }
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Start a group chat (coming soon)");
                       }}
-                      className={`mr-2 h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition ${
-                        isMobile ? "flex" : "hidden group-hover:flex"
-                      }`}
-                      aria-label="Chat options"
-                      title="Options"
                     >
-                      <MoreHorizontal size={16} />
+                      <Users size={16} />
+                      Start a group chat
                     </button>
 
-                    {desktopMenuOpen && (
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="absolute right-2 top-11 z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
-                      >
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Share (coming soon)");
-                          }}
-                        >
-                          <Share2 size={16} />
-                          Share
-                        </button>
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        requestRenameChat(chat.id);
+                      }}
+                    >
+                      <Pencil size={16} />
+                      Rename
+                    </button>
 
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Start a group chat (coming soon)");
-                          }}
-                        >
-                          <Users size={16} />
-                          Start a group chat
-                        </button>
+                    <div className="h-px bg-white/10 my-1" />
 
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            requestRenameChat(chat.id);
-                          }}
-                        >
-                          <Pencil size={16} />
-                          Rename
-                        </button>
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Pin chat (coming soon)");
+                      }}
+                    >
+                      <Pin size={16} />
+                      Pin chat
+                    </button>
 
-                        <div className="h-px bg-white/10 my-1" />
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Archive (coming soon)");
+                      }}
+                    >
+                      <Archive size={16} />
+                      Archive
+                    </button>
 
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Pin chat (coming soon)");
-                          }}
-                        >
-                          <Pin size={16} />
-                          Pin chat
-                        </button>
-
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Archive (coming soon)");
-                          }}
-                        >
-                          <Archive size={16} />
-                          Archive
-                        </button>
-
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            setTimeout(() => requestDeleteChat(chat.id), 120);
-                          }}
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    )}
-
-                    {mobileMenuOpen && mobileMenu && (
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ top: mobileMenu.top, left: mobileMenu.left }}
-                        className="fixed z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
-                      >
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Share (coming soon)");
-                          }}
-                        >
-                          <Share2 size={16} />
-                          Share
-                        </button>
-
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Start a group chat (coming soon)");
-                          }}
-                        >
-                          <Users size={16} />
-                          Start a group chat
-                        </button>
-
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            requestRenameChat(chat.id);
-                          }}
-                        >
-                          <Pencil size={16} />
-                          Rename
-                        </button>
-
-                        <div className="h-px bg-white/10 my-1" />
-
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Pin chat (coming soon)");
-                          }}
-                        >
-                          <Pin size={16} />
-                          Pin chat
-                        </button>
-
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            alert("Archive (coming soon)");
-                          }}
-                        >
-                          <Archive size={16} />
-                          Archive
-                        </button>
-
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
-                          onClick={() => {
-                            closeAllChatMenus();
-                            setTimeout(() => requestDeleteChat(chat.id), 120);
-                          }}
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                    <button
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                      onClick={() => {
+                        closeAllChatMenus();
+                        setTimeout(() => requestDeleteChat(chat.id), 120);
+                      }}
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </>
+                )}
+
+                {mobileMenuOpen && mobileMenu && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ top: mobileMenu.top, left: mobileMenu.left }}
+                    className="fixed z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+                  >
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Share (coming soon)");
+                      }}
+                    >
+                      <Share2 size={16} />
+                      Share
+                    </button>
+
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Start a group chat (coming soon)");
+                      }}
+                    >
+                      <Users size={16} />
+                      Start a group chat
+                    </button>
+
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        requestRenameChat(chat.id);
+                      }}
+                    >
+                      <Pencil size={16} />
+                      Rename
+                    </button>
+
+                    <div className="h-px bg-white/10 my-1" />
+
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Pin chat (coming soon)");
+                      }}
+                    >
+                      <Pin size={16} />
+                      Pin chat
+                    </button>
+
+                    <button
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5 ${glowText}`}
+                      onClick={() => {
+                        closeAllChatMenus();
+                        alert("Archive (coming soon)");
+                      }}
+                    >
+                      <Archive size={16} />
+                      Archive
+                    </button>
+
+                    <button
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                      onClick={() => {
+                        closeAllChatMenus();
+                        setTimeout(() => requestDeleteChat(chat.id), 120);
+                      }}
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </>
   );
@@ -816,7 +842,7 @@ export default function ChatClient() {
               <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/5">
                 <div className="flex items-center gap-3 min-w-0">
                   <button
-                    className="md:hidden h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+                    className={`md:hidden h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
                     onClick={() => setMobileSidebarOpen(true)}
                     aria-label="Open sidebar"
                     title="Menu"
@@ -829,7 +855,7 @@ export default function ChatClient() {
                     <button
                       type="button"
                       onClick={() => setModelMenuOpen((v) => !v)}
-                      className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 hover:bg-white/10 transition"
+                      className={`hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 ${glowPill}`}
                       aria-label="Select model"
                       title="Select model"
                     >
@@ -840,7 +866,7 @@ export default function ChatClient() {
                     <button
                       type="button"
                       onClick={() => setModelSheetOpen(true)}
-                      className="md:hidden flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 hover:bg-white/10 transition"
+                      className={`md:hidden flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/85 ${glowPill}`}
                       aria-label="Select model"
                       title="Select model"
                     >
@@ -858,16 +884,14 @@ export default function ChatClient() {
                         </div>
 
                         <button
-                          className="w-full flex items-center justify-between px-3 py-3 text-sm text-white/85 hover:bg-white/5 transition"
+                          className={`w-full flex items-center justify-between px-3 py-3 text-sm text-white/85 hover:bg-white/5 ${glowText}`}
                           onClick={() => {
                             setTier("lite");
                             setModelMenuOpen(false);
                           }}
                         >
                           <div className="flex flex-col items-start">
-                            <span className="font-semibold">
-                              {MODEL_LABEL.lite}
-                            </span>
+                            <span className="font-semibold">{MODEL_LABEL.lite}</span>
                             <span className="text-xs text-white/45">
                               Free • Calm-first replies
                             </span>
@@ -878,16 +902,14 @@ export default function ChatClient() {
                         </button>
 
                         <button
-                          className="w-full flex items-center justify-between px-3 py-3 text-sm text-white/75 hover:bg-white/5 transition"
+                          className={`w-full flex items-center justify-between px-3 py-3 text-sm text-white/75 hover:bg-white/5 ${glowText}`}
                           onClick={() => {
                             setModelMenuOpen(false);
                             setUpgradeOpen(true);
                           }}
                         >
                           <div className="flex flex-col items-start">
-                            <span className="font-semibold">
-                              {MODEL_LABEL.pro}
-                            </span>
+                            <span className="font-semibold">{MODEL_LABEL.pro}</span>
                             <span className="text-xs text-white/45">
                               Locked • Smarter, more contextual
                             </span>
@@ -898,7 +920,7 @@ export default function ChatClient() {
                         <div className="h-px bg-white/10" />
 
                         <button
-                          className="w-full px-3 py-3 text-sm text-white/90 hover:bg-white/5 transition flex items-center gap-2"
+                          className={`w-full px-3 py-3 text-sm text-white/90 hover:bg-white/5 flex items-center gap-2 ${glowText}`}
                           onClick={() => {
                             setModelMenuOpen(false);
                             setUpgradeOpen(true);
@@ -919,7 +941,6 @@ export default function ChatClient() {
 
               {/* Messages */}
               <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-                {/* Empty state */}
                 {activeChat && activeChat.messages.length === 0 && (
                   <div className="h-full flex items-center justify-center">
                     <div className="max-w-lg text-center">
@@ -940,7 +961,7 @@ export default function ChatClient() {
                           <button
                             key={t}
                             onClick={() => setInput(t)}
-                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 transition"
+                            className={`rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 ${glowPill}`}
                           >
                             {cleanQuickReplyLabel(t)}
                           </button>
@@ -986,7 +1007,7 @@ export default function ChatClient() {
                                 hideQuickRepliesForMessage(activeChat.id, msg.id);
                                 sendMessage(qr);
                               }}
-                              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 hover:bg-white/10 transition"
+                              className={`rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 ${glowPill}`}
                             >
                               {cleanQuickReplyLabel(qr)}
                             </button>
@@ -1026,7 +1047,7 @@ export default function ChatClient() {
                     disabled={loading || !input.trim()}
                     className={`h-11 w-11 rounded-full flex items-center justify-center transition-all duration-200 ${
                       input.trim()
-                        ? "bg-white/10 text-white hover:bg-white/15"
+                        ? "bg-white/10 text-white hover:bg-white/15 hover:shadow-[0_0_20px_rgba(255,255,255,0.12)]"
                         : "bg-white/5 text-white/30"
                     }`}
                     aria-label="Send"
@@ -1045,10 +1066,8 @@ export default function ChatClient() {
                   ].map((t) => (
                     <button
                       key={t}
-                      onClick={() =>
-                        setInput((prev) => (prev ? prev + " " + t : t))
-                      }
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/65 hover:bg-white/10 transition"
+                      onClick={() => setInput((prev) => (prev ? prev + " " + t : t))}
+                      className={`rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/65 ${glowPill}`}
                     >
                       {cleanQuickReplyLabel(t)}
                     </button>
@@ -1077,7 +1096,7 @@ export default function ChatClient() {
               </p>
               <button
                 onClick={() => setShowApps(false)}
-                className="rounded-xl bg-blue-600 px-4 py-2 hover:bg-blue-500 transition"
+                className={`rounded-xl bg-blue-600 px-4 py-2 hover:bg-blue-500 transition ${glowPill}`}
               >
                 Close
               </button>
@@ -1099,7 +1118,7 @@ export default function ChatClient() {
                 </div>
                 <button
                   onClick={() => setModelSheetOpen(false)}
-                  className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
+                  className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 ${glowPill}`}
                   aria-label="Close"
                 >
                   <X size={16} />
@@ -1108,7 +1127,7 @@ export default function ChatClient() {
 
               <div className="mt-4 space-y-2">
                 <button
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10 transition"
+                  className={`w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left ${glowPill}`}
                   onClick={() => {
                     setTier("lite");
                     setModelSheetOpen(false);
@@ -1128,7 +1147,7 @@ export default function ChatClient() {
                 </button>
 
                 <button
-                  className="w-full rounded-2xl border border-white/10 bg-white/4 px-4 py-3 text-left hover:bg-white/10 transition"
+                  className={`w-full rounded-2xl border border-white/10 bg-white/4 px-4 py-3 text-left ${glowPill}`}
                   onClick={() => {
                     setModelSheetOpen(false);
                     setUpgradeOpen(true);
@@ -1149,7 +1168,7 @@ export default function ChatClient() {
                 </button>
 
                 <button
-                  className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition"
+                  className={`w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition ${glowPill}`}
                   onClick={() => {
                     setModelSheetOpen(false);
                     setUpgradeOpen(true);
@@ -1184,14 +1203,13 @@ export default function ChatClient() {
                       Upgrade to Pro
                     </h3>
                     <p className="mt-2 text-sm text-white/55">
-                      Unlock more accurate responses, better context, and less
-                      repetition.
+                      Unlock more accurate responses, better context, and less repetition.
                     </p>
                   </div>
 
                   <button
                     onClick={() => setUpgradeOpen(false)}
-                    className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition"
+                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-white ${glowPill}`}
                     aria-label="Close"
                   >
                     <X size={16} />
@@ -1217,7 +1235,7 @@ export default function ChatClient() {
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
                 <button
                   onClick={() => setUpgradeOpen(false)}
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
+                  className={`rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 ${glowPill}`}
                 >
                   Close
                 </button>
@@ -1226,7 +1244,7 @@ export default function ChatClient() {
                     setUpgradeOpen(false);
                     alert("Upgrade flow coming soon.");
                   }}
-                  className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition"
+                  className={`rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition ${glowPill}`}
                 >
                   Continue
                 </button>
@@ -1247,12 +1265,10 @@ export default function ChatClient() {
             >
               <div className="p-6">
                 <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold text-white/90">
-                    Delete chat?
-                  </h3>
+                  <h3 className="text-lg font-semibold text-white/90">Delete chat?</h3>
                   <button
                     onClick={() => setDeleteTargetId(null)}
-                    className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition"
+                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-white ${glowPill}`}
                     aria-label="Close"
                   >
                     <X size={16} />
@@ -1262,20 +1278,17 @@ export default function ChatClient() {
                 <p className="mt-3 text-sm text-white/60">
                   This will delete{" "}
                   <span className="font-semibold text-white/80">
-                    {chats.find((c) => c.id === deleteTargetId)?.title ??
-                      "this chat"}
+                    {chats.find((c) => c.id === deleteTargetId)?.title ?? "this chat"}
                   </span>
                   .
                 </p>
-                <p className="mt-2 text-xs text-white/35">
-                  This action can’t be undone.
-                </p>
+                <p className="mt-2 text-xs text-white/35">This action can’t be undone.</p>
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
                 <button
                   onClick={() => setDeleteTargetId(null)}
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
+                  className={`rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 ${glowPill}`}
                 >
                   Cancel
                 </button>
@@ -1302,12 +1315,10 @@ export default function ChatClient() {
             >
               <div className="p-6">
                 <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold text-white/90">
-                    Rename chat
-                  </h3>
+                  <h3 className="text-lg font-semibold text-white/90">Rename chat</h3>
                   <button
                     onClick={() => setRenameTargetId(null)}
-                    className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition"
+                    className={`h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-white ${glowPill}`}
                     aria-label="Close"
                   >
                     <X size={16} />
@@ -1332,13 +1343,13 @@ export default function ChatClient() {
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
                 <button
                   onClick={() => setRenameTargetId(null)}
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition"
+                  className={`rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 ${glowPill}`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmRenameChat}
-                  className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition"
+                  className={`rounded-full bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500 transition ${glowPill}`}
                 >
                   Save
                 </button>

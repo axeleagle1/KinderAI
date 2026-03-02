@@ -21,3 +21,44 @@ body {
 body {
   margin: 0;
 }
+/* ✨ Interactive glow on hover */
+
+.glow-hover {
+  position: relative;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.glow-hover:hover {
+  color: #ffffff;
+  text-shadow:
+    0 0 6px rgba(59,130,246,0.6),
+    0 0 14px rgba(59,130,246,0.35),
+    0 0 24px rgba(59,130,246,0.2);
+}
+
+/* ChatGPT-style subtle halo */
+
+.glow-soft {
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.glow-soft::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    rgba(59,130,246,0.35) 0%,
+    rgba(59,130,246,0.15) 40%,
+    transparent 70%
+  );
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.glow-soft:hover::after {
+  opacity: 1;
+}
