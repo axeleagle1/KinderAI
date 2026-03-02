@@ -20,6 +20,8 @@ import {
   Check,
   Lock,
   Sparkles,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 type Tier = "lite" | "pro";
@@ -103,6 +105,9 @@ export default function ChatClient() {
   // Sidebar
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // ✅ NEW: collapsible "Your chats"
+  const [chatsSectionOpen, setChatsSectionOpen] = useState(true);
 
   // Menus (chat options)
   const [openMenuFor, setOpenMenuFor] = useState<string | null>(null);
@@ -412,7 +417,11 @@ export default function ChatClient() {
     const PAD = 10;
     const openUp = rect.bottom + MENU_H + PAD > window.innerHeight;
 
-    const left = clamp(rect.right - MENU_W, PAD, window.innerWidth - MENU_W - PAD);
+    const left = clamp(
+      rect.right - MENU_W,
+      PAD,
+      window.innerWidth - MENU_W - PAD
+    );
     const top = openUp ? rect.top - MENU_H - 8 : rect.bottom + 8;
 
     setMobileMenu({
@@ -429,7 +438,11 @@ export default function ChatClient() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 overflow-hidden">
-              <img src="/logo.png" alt="KinderAI" className="w-full h-full object-contain" />
+              <img
+                src="/logo.png"
+                alt="KinderAI"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="text-sm font-semibold text-white/90">KinderAI</div>
           </div>
@@ -455,14 +468,17 @@ export default function ChatClient() {
       ) : (
         <div className="flex items-center gap-3 mb-6">
           <div className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-lg overflow-hidden">
-            <img src="/logo.png" alt="KinderAI Logo" className="w-full h-full object-contain" />
+            <img
+              src="/logo.png"
+              alt="KinderAI Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
 
           <div>
             <h2 className="text-lg font-semibold text-white/90 leading-tight">
               KinderAI
             </h2>
-            {/* removed "Chat" label */}
           </div>
 
           <button
@@ -540,210 +556,225 @@ export default function ChatClient() {
         </div>
       )}
 
+      {/* ✅ Collapsible "Your chats" */}
       {(isMobile || (!isMobile && !sidebarCollapsed)) && (
-        <div className="mt-8 mb-3 text-xs uppercase tracking-wider text-white/40">
-          Your chats
-        </div>
-      )}
+        <>
+          <button
+            type="button"
+            onClick={() => setChatsSectionOpen((v) => !v)}
+            className="mt-8 mb-3 w-full flex items-center justify-between text-xs uppercase tracking-wider text-white/40 hover:text-white/60 transition"
+            aria-label="Toggle chat topics"
+          >
+            <span>Your chats</span>
+            {chatsSectionOpen ? (
+              <ChevronDown size={14} className="text-white/35" />
+            ) : (
+              <ChevronRight size={14} className="text-white/35" />
+            )}
+          </button>
 
-      {(isMobile || (!isMobile && !sidebarCollapsed)) && (
-        <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-          {visibleChats.map((chat) => {
-            const isActive = chat.id === activeChatId;
-            const desktopMenuOpen = !isMobile && openMenuFor === chat.id;
-            const mobileMenuOpen = !!isMobile && mobileMenu?.chatId === chat.id;
+          {chatsSectionOpen && (
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+              {visibleChats.map((chat) => {
+                const isActive = chat.id === activeChatId;
+                const desktopMenuOpen = !isMobile && openMenuFor === chat.id;
+                const mobileMenuOpen = !!isMobile && mobileMenu?.chatId === chat.id;
 
-            return (
-              <div
-                key={chat.id}
-                className={`group relative flex items-center rounded-xl border transition ${
-                  isActive
-                    ? "bg-blue-500/10 border-blue-400/20 shadow-sm shadow-blue-500/10"
-                    : "bg-white/0 border-transparent hover:bg-white/5 hover:border-white/10"
-                }`}
-              >
-                <button
-                  onClick={() => selectChat(chat.id)}
-                  className="flex-1 text-left px-3 py-2 text-sm truncate"
-                  title={chat.title}
-                >
-                  {chat.title}
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (isMobile) {
-                      const el = e.currentTarget as HTMLElement;
-                      if (mobileMenu?.chatId === chat.id) setMobileMenu(null);
-                      else openMobileMenu(chat.id, el);
-                    } else {
-                      setOpenMenuFor((prev) => (prev === chat.id ? null : chat.id));
-                    }
-                  }}
-                  className={`mr-2 h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition ${
-                    isMobile ? "flex" : "hidden group-hover:flex"
-                  }`}
-                  aria-label="Chat options"
-                  title="Options"
-                >
-                  <MoreHorizontal size={16} />
-                </button>
-
-                {desktopMenuOpen && (
+                return (
                   <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="absolute right-2 top-11 z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+                    key={chat.id}
+                    className={`group relative flex items-center rounded-xl border transition ${
+                      isActive
+                        ? "bg-blue-500/10 border-blue-400/20 shadow-sm shadow-blue-500/10"
+                        : "bg-white/0 border-transparent hover:bg-white/5 hover:border-white/10"
+                    }`}
                   >
                     <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Share (coming soon)");
-                      }}
+                      onClick={() => selectChat(chat.id)}
+                      className="flex-1 text-left px-3 py-2 text-sm truncate"
+                      title={chat.title}
                     >
-                      <Share2 size={16} />
-                      Share
+                      {chat.title}
                     </button>
 
                     <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Start a group chat (coming soon)");
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isMobile) {
+                          const el = e.currentTarget as HTMLElement;
+                          if (mobileMenu?.chatId === chat.id) setMobileMenu(null);
+                          else openMobileMenu(chat.id, el);
+                        } else {
+                          setOpenMenuFor((prev) =>
+                            prev === chat.id ? null : chat.id
+                          );
+                        }
                       }}
+                      className={`mr-2 h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition ${
+                        isMobile ? "flex" : "hidden group-hover:flex"
+                      }`}
+                      aria-label="Chat options"
+                      title="Options"
                     >
-                      <Users size={16} />
-                      Start a group chat
+                      <MoreHorizontal size={16} />
                     </button>
 
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        requestRenameChat(chat.id);
-                      }}
-                    >
-                      <Pencil size={16} />
-                      Rename
-                    </button>
+                    {desktopMenuOpen && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute right-2 top-11 z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+                      >
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Share (coming soon)");
+                          }}
+                        >
+                          <Share2 size={16} />
+                          Share
+                        </button>
 
-                    <div className="h-px bg-white/10 my-1" />
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Start a group chat (coming soon)");
+                          }}
+                        >
+                          <Users size={16} />
+                          Start a group chat
+                        </button>
 
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Pin chat (coming soon)");
-                      }}
-                    >
-                      <Pin size={16} />
-                      Pin chat
-                    </button>
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            requestRenameChat(chat.id);
+                          }}
+                        >
+                          <Pencil size={16} />
+                          Rename
+                        </button>
 
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Archive (coming soon)");
-                      }}
-                    >
-                      <Archive size={16} />
-                      Archive
-                    </button>
+                        <div className="h-px bg-white/10 my-1" />
 
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        setTimeout(() => requestDeleteChat(chat.id), 120);
-                      }}
-                    >
-                      <Trash2 size={16} />
-                      Delete
-                    </button>
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Pin chat (coming soon)");
+                          }}
+                        >
+                          <Pin size={16} />
+                          Pin chat
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Archive (coming soon)");
+                          }}
+                        >
+                          <Archive size={16} />
+                          Archive
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            setTimeout(() => requestDeleteChat(chat.id), 120);
+                          }}
+                        >
+                          <Trash2 size={16} />
+                          Delete
+                        </button>
+                      </div>
+                    )}
+
+                    {mobileMenuOpen && mobileMenu && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ top: mobileMenu.top, left: mobileMenu.left }}
+                        className="fixed z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+                      >
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Share (coming soon)");
+                          }}
+                        >
+                          <Share2 size={16} />
+                          Share
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Start a group chat (coming soon)");
+                          }}
+                        >
+                          <Users size={16} />
+                          Start a group chat
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            requestRenameChat(chat.id);
+                          }}
+                        >
+                          <Pencil size={16} />
+                          Rename
+                        </button>
+
+                        <div className="h-px bg-white/10 my-1" />
+
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Pin chat (coming soon)");
+                          }}
+                        >
+                          <Pin size={16} />
+                          Pin chat
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            alert("Archive (coming soon)");
+                          }}
+                        >
+                          <Archive size={16} />
+                          Archive
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                          onClick={() => {
+                            closeAllChatMenus();
+                            setTimeout(() => requestDeleteChat(chat.id), 120);
+                          }}
+                        >
+                          <Trash2 size={16} />
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {mobileMenuOpen && mobileMenu && (
-                  <div
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ top: mobileMenu.top, left: mobileMenu.left }}
-                    className="fixed z-50 w-56 rounded-xl border border-white/10 bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
-                  >
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Share (coming soon)");
-                      }}
-                    >
-                      <Share2 size={16} />
-                      Share
-                    </button>
-
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Start a group chat (coming soon)");
-                      }}
-                    >
-                      <Users size={16} />
-                      Start a group chat
-                    </button>
-
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        requestRenameChat(chat.id);
-                      }}
-                    >
-                      <Pencil size={16} />
-                      Rename
-                    </button>
-
-                    <div className="h-px bg-white/10 my-1" />
-
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Pin chat (coming soon)");
-                      }}
-                    >
-                      <Pin size={16} />
-                      Pin chat
-                    </button>
-
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        alert("Archive (coming soon)");
-                      }}
-                    >
-                      <Archive size={16} />
-                      Archive
-                    </button>
-
-                    <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
-                      onClick={() => {
-                        closeAllChatMenus();
-                        setTimeout(() => requestDeleteChat(chat.id), 120);
-                      }}
-                    >
-                      <Trash2 size={16} />
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </>
   );
@@ -834,10 +865,16 @@ export default function ChatClient() {
                           }}
                         >
                           <div className="flex flex-col items-start">
-                            <span className="font-semibold">{MODEL_LABEL.lite}</span>
-                            <span className="text-xs text-white/45">Free • Calm-first replies</span>
+                            <span className="font-semibold">
+                              {MODEL_LABEL.lite}
+                            </span>
+                            <span className="text-xs text-white/45">
+                              Free • Calm-first replies
+                            </span>
                           </div>
-                          {tier === "lite" && <Check size={16} className="text-white/70" />}
+                          {tier === "lite" && (
+                            <Check size={16} className="text-white/70" />
+                          )}
                         </button>
 
                         <button
@@ -848,8 +885,12 @@ export default function ChatClient() {
                           }}
                         >
                           <div className="flex flex-col items-start">
-                            <span className="font-semibold">{MODEL_LABEL.pro}</span>
-                            <span className="text-xs text-white/45">Locked • Smarter, more contextual</span>
+                            <span className="font-semibold">
+                              {MODEL_LABEL.pro}
+                            </span>
+                            <span className="text-xs text-white/45">
+                              Locked • Smarter, more contextual
+                            </span>
                           </div>
                           <Lock size={16} className="text-white/45" />
                         </button>
@@ -878,7 +919,7 @@ export default function ChatClient() {
 
               {/* Messages */}
               <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-                {/* EMPTY STATE (REMOVED big center icon+KinderAI title) */}
+                {/* Empty state */}
                 {activeChat && activeChat.messages.length === 0 && (
                   <div className="h-full flex items-center justify-center">
                     <div className="max-w-lg text-center">
@@ -890,17 +931,20 @@ export default function ChatClient() {
                       </p>
 
                       <div className="mt-6 flex flex-wrap justify-center gap-2">
-                        {["[MODE:GROUND] Calm down", "Get clarity", "Make a plan", "[MODE:PAUSE] Rewrite a message"].map(
-                          (t) => (
-                            <button
-                              key={t}
-                              onClick={() => setInput(t)}
-                              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 transition"
-                            >
-                              {cleanQuickReplyLabel(t)}
-                            </button>
-                          )
-                        )}
+                        {[
+                          "[MODE:GROUND] Calm down",
+                          "Get clarity",
+                          "Make a plan",
+                          "[MODE:PAUSE] Rewrite a message",
+                        ].map((t) => (
+                          <button
+                            key={t}
+                            onClick={() => setInput(t)}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:bg-white/10 transition"
+                          >
+                            {cleanQuickReplyLabel(t)}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -908,7 +952,11 @@ export default function ChatClient() {
 
                 {activeChat?.messages.map((msg) => (
                   <div key={msg.id} className="mb-4">
-                    <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div
+                      className={`flex ${
+                        msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
+                    >
                       <div
                         className={`max-w-[90%] sm:max-w-[78%] rounded-2xl px-4 py-3 whitespace-pre-wrap border shadow-sm ${
                           msg.role === "user"
@@ -921,26 +969,30 @@ export default function ChatClient() {
                     </div>
 
                     {msg.role === "assistant" && msg.statusLine && (
-                      <div className="mt-1 ml-2 text-[11px] text-white/35">{msg.statusLine}</div>
-                    )}
-
-                    {msg.role === "assistant" && msg.quickReplies && msg.quickReplies.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {msg.quickReplies.map((qr) => (
-                          <button
-                            key={`${msg.id}-${qr}`}
-                            onClick={() => {
-                              if (!activeChat) return;
-                              hideQuickRepliesForMessage(activeChat.id, msg.id);
-                              sendMessage(qr);
-                            }}
-                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 hover:bg-white/10 transition"
-                          >
-                            {cleanQuickReplyLabel(qr)}
-                          </button>
-                        ))}
+                      <div className="mt-1 ml-2 text-[11px] text-white/35">
+                        {msg.statusLine}
                       </div>
                     )}
+
+                    {msg.role === "assistant" &&
+                      msg.quickReplies &&
+                      msg.quickReplies.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {msg.quickReplies.map((qr) => (
+                            <button
+                              key={`${msg.id}-${qr}`}
+                              onClick={() => {
+                                if (!activeChat) return;
+                                hideQuickRepliesForMessage(activeChat.id, msg.id);
+                                sendMessage(qr);
+                              }}
+                              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 hover:bg-white/10 transition"
+                            >
+                              {cleanQuickReplyLabel(qr)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                   </div>
                 ))}
 
@@ -969,7 +1021,6 @@ export default function ChatClient() {
                     placeholder="Write a message…"
                   />
 
-                  {/* SEND button on ALL screen sizes */}
                   <button
                     onClick={sendText}
                     disabled={loading || !input.trim()}
@@ -986,10 +1037,17 @@ export default function ChatClient() {
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-2 px-1 pb-1">
-                  {["[MODE:GROUND] Calm down", "Get clarity", "Make a plan", "[MODE:PAUSE] Rewrite kindly"].map((t) => (
+                  {[
+                    "[MODE:GROUND] Calm down",
+                    "Get clarity",
+                    "Make a plan",
+                    "[MODE:PAUSE] Rewrite kindly",
+                  ].map((t) => (
                     <button
                       key={t}
-                      onClick={() => setInput((prev) => (prev ? prev + " " + t : t))}
+                      onClick={() =>
+                        setInput((prev) => (prev ? prev + " " + t : t))
+                      }
                       className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/65 hover:bg-white/10 transition"
                     >
                       {cleanQuickReplyLabel(t)}
@@ -1014,7 +1072,9 @@ export default function ChatClient() {
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
             <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1220]/90 p-6 shadow-2xl">
               <h3 className="text-lg font-semibold mb-2">Apps</h3>
-              <p className="text-white/55 text-sm mb-5">Future tools will appear here.</p>
+              <p className="text-white/55 text-sm mb-5">
+                Future tools will appear here.
+              </p>
               <button
                 onClick={() => setShowApps(false)}
                 className="rounded-xl bg-blue-600 px-4 py-2 hover:bg-blue-500 transition"
@@ -1034,7 +1094,9 @@ export default function ChatClient() {
             />
             <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl border-t border-white/10 bg-[#0b1220]/95 backdrop-blur-2xl p-4 shadow-2xl">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-white/90">Select model</div>
+                <div className="text-sm font-semibold text-white/90">
+                  Select model
+                </div>
                 <button
                   onClick={() => setModelSheetOpen(false)}
                   className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/10 transition"
@@ -1054,8 +1116,12 @@ export default function ChatClient() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-semibold text-white/90">{MODEL_LABEL.lite}</div>
-                      <div className="text-xs text-white/45 mt-0.5">Free • Calm-first replies</div>
+                      <div className="text-sm font-semibold text-white/90">
+                        {MODEL_LABEL.lite}
+                      </div>
+                      <div className="text-xs text-white/45 mt-0.5">
+                        Free • Calm-first replies
+                      </div>
                     </div>
                     {tier === "lite" && <div className="text-white/70">✓</div>}
                   </div>
@@ -1071,9 +1137,12 @@ export default function ChatClient() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-sm font-semibold text-white/80">
-                        {MODEL_LABEL.pro} <span className="text-white/40">• Locked</span>
+                        {MODEL_LABEL.pro}{" "}
+                        <span className="text-white/40">• Locked</span>
                       </div>
-                      <div className="text-xs text-white/45 mt-0.5">Smarter responses + more context</div>
+                      <div className="text-xs text-white/45 mt-0.5">
+                        Smarter responses + more context
+                      </div>
                     </div>
                     <div className="text-white/45">🔒</div>
                   </div>
@@ -1115,7 +1184,8 @@ export default function ChatClient() {
                       Upgrade to Pro
                     </h3>
                     <p className="mt-2 text-sm text-white/55">
-                      Unlock more accurate responses, better context, and less repetition.
+                      Unlock more accurate responses, better context, and less
+                      repetition.
                     </p>
                   </div>
 
@@ -1129,7 +1199,9 @@ export default function ChatClient() {
                 </div>
 
                 <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="text-sm font-semibold text-white/85">{MODEL_LABEL.pro}</div>
+                  <div className="text-sm font-semibold text-white/85">
+                    {MODEL_LABEL.pro}
+                  </div>
                   <ul className="mt-2 text-sm text-white/60 space-y-1">
                     <li>• More contextual replies</li>
                     <li>• Better emotional accuracy</li>
@@ -1175,7 +1247,9 @@ export default function ChatClient() {
             >
               <div className="p-6">
                 <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold text-white/90">Delete chat?</h3>
+                  <h3 className="text-lg font-semibold text-white/90">
+                    Delete chat?
+                  </h3>
                   <button
                     onClick={() => setDeleteTargetId(null)}
                     className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition"
@@ -1188,11 +1262,14 @@ export default function ChatClient() {
                 <p className="mt-3 text-sm text-white/60">
                   This will delete{" "}
                   <span className="font-semibold text-white/80">
-                    {chats.find((c) => c.id === deleteTargetId)?.title ?? "this chat"}
+                    {chats.find((c) => c.id === deleteTargetId)?.title ??
+                      "this chat"}
                   </span>
                   .
                 </p>
-                <p className="mt-2 text-xs text-white/35">This action can’t be undone.</p>
+                <p className="mt-2 text-xs text-white/35">
+                  This action can’t be undone.
+                </p>
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-white/10 px-6 py-4">
@@ -1225,7 +1302,9 @@ export default function ChatClient() {
             >
               <div className="p-6">
                 <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold text-white/90">Rename chat</h3>
+                  <h3 className="text-lg font-semibold text-white/90">
+                    Rename chat
+                  </h3>
                   <button
                     onClick={() => setRenameTargetId(null)}
                     className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition"
